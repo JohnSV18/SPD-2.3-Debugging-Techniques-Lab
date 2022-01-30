@@ -33,27 +33,23 @@ def get_letter_for_units(units):
     """Returns a shorthand letter for the given units."""
     return 'F' if units == 'imperial' else 'C' if units == 'metric' else 'K'
 
-@app.route('/results')
+@app.route('/results', methods=['GET'])
 def results():
     """Displays results for current weather conditions."""
     city = request.args.get('users_city')
-    units = request.args.get('requested_units')
+    units = request.args.get('units')
 
-    url = 'http://api.openweathermap.org/data/2.5/weather'
-    params = {
-        'appid': API_KEY,
-        'place': city,
-        'units': units
-    }
-    result_json = requests.get(url, params=params).json()
+    url = 'http://api.openweathermap.org/data/2.5/find?q='+city+'&units='+units+'&appid='+API_KEY
 
+    result_json = requests.get(url).json()
+  
     context = {
         'date': datetime.now(),
-        'city': result_json['name'],
-        'description': result_json['weather'][0]['description'],
-        'temp': result_json['main']['temperature'],
-        'humidity': result_json['main']['humidity'],
-        'wind_speed': result_json['wind']['speed'],
+        'city': result_json['list'][0]['name'],
+        'description': result_json['list'][0]['weather'][0]['description'],
+        'temp': result_json['list'][0]['main']['temp'],
+        'humidity': result_json['list'][0]['main']['humidity'],
+        'wind_speed': result_json['list'][0]['wind']['speed'],
         'units_letter': get_letter_for_units(units)
     }
 
